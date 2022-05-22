@@ -154,10 +154,11 @@ class Elements extends Array {
       this.length===1? this[0].value:this.map(element=>element.value)
     )
   }
-  y(cbpm, position) {
+  y(cbpm, tblr) {
     const options = typeof cbpm==="undefined"? ["c","p","b"] : cbpm.replace(" ","").toLowerCase().split("")
-    if(typeof position==="string"||position instanceof String){
-      const _position = position.charAt(0).toUpperCase() + position.slice(1)
+    if(typeof tblr==="string"||tblr instanceof String){
+      cont fl = tblr.charAt(0).toLowerCase()
+      const _position = fl==="t"?"Top": fl==="b"?"Bottom": fl==="r"?"Right" : "Left"
         if(this.length===1) {
           const scrollbarHeight = 
             (_position==="Bottom"? 
@@ -263,10 +264,11 @@ class Elements extends Array {
       }
     }
   }
-  x(cbpm, position) {
+  x(cbpm, tblr) {
     const options = typeof cbpm==="undefined"? ["c","p","b"] : cbpm.replace(" ","").toLowerCase().split("")
-    if(typeof position==="string"||position instanceof String){
-      const _position = position.charAt(0).toUpperCase() + position.slice(1)
+    if(typeof tblr==="string"||tblr instanceof String){
+      cont fl = tblr.charAt(0).toLowerCase()
+      const _position = fl==="t"?"Top": fl==="b"?"Bottom": fl==="r"?"Right" : "Left"
       if(this.length===1){
         const scrollbarHeight = 
           (_position==="Right"? 
