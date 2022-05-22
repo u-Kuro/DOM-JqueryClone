@@ -154,7 +154,7 @@ class Elements extends Array {
       this.length===1? this[0].value:this.map(element=>element.value)
     )
   }
-  height(cbpm, position) {
+  y(cbpm, position) {
     const options = typeof cbpm==="undefined"? ["c","p","b"] : cbpm.replace(" ","").toLowerCase().split("")
     if(typeof position==="string"||position instanceof String){
       const _position = position.charAt(0).toUpperCase() + position.slice(1)
@@ -166,13 +166,13 @@ class Elements extends Array {
           return (
             (scrollbarHeight) +
             (options.includes("c")? 
-              propVal(this[0],"height")
+              (propVal(this[0],"height")
                 -propVal(this[0],"paddingTop")
                 -propVal(this[0],"paddingBottom")
                 -propVal(this[0],"borderTopWidth")
                 -propVal(this[0],"borderBottomWidth")
                 -propVal(this[0],"marginTop")
-                -propVal(this[0],"marginBottom"):0) + 
+                -propVal(this[0],"marginBottom"))/2:0) + 
             (options.includes("b")?
               propVal(this[0],"border"+_position+"Width"):0) +
             (options.includes("p")?
@@ -189,13 +189,13 @@ class Elements extends Array {
             return (
               (scrollbarHeight) +
               (options.includes("c")? 
-                propVal(element,"height")
+                (propVal(element,"height")
                   -propVal(element,"paddingTop")
                   -propVal(element,"paddingBottom")
                   -propVal(element,"borderTopWidth")
                   -propVal(element,"borderBottomWidth")
                   -propVal(element,"marginTop")
-                  -propVal(element,"marginBottom"):0) + 
+                  -propVal(element,"marginBottom"))/2:0) + 
               (options.includes("b")?
                 propVal(element,"border"+_position+"Width"):0) +
               (options.includes("p")?
@@ -263,7 +263,7 @@ class Elements extends Array {
       }
     }
   }
-  width(cbpm, position) {
+  x(cbpm, position) {
     const options = typeof cbpm==="undefined"? ["c","p","b"] : cbpm.replace(" ","").toLowerCase().split("")
     if(typeof position==="string"||position instanceof String){
       const _position = position.charAt(0).toUpperCase() + position.slice(1)
@@ -281,7 +281,7 @@ class Elements extends Array {
               -propVal(this[0],"borderLeftWidth")
               -propVal(this[0],"borderRightWidth")
               -propVal(this[0],"marginRight")
-              -propVal(this[0],"marginLeft")):0) +
+              -propVal(this[0],"marginLeft"))/2:0) +
           (options.includes("b")?
             propVal(this[0],"border"+_position+"Width"):0) +
           (options.includes("p")?
@@ -298,13 +298,13 @@ class Elements extends Array {
           return (
             (scrollbarHeight) +
             (options.includes("c")? 
-              propVal(element,"width")
+              (propVal(element,"width")
                 -propVal(this[0],"paddingLeft")
                 -propVal(this[0],"paddingRight")
                 -propVal(this[0],"borderLeftWidth")
                 -propVal(this[0],"borderRightWidth")
                 -propVal(this[0],"marginRight")
-                -propVal(this[0],"marginLeft"):0) + 
+                -propVal(this[0],"marginLeft"))/2:0) + 
             (options.includes("b")?
               propVal(element,"border"+_position+"Width"):0) +
             (options.includes("p")?
