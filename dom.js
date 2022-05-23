@@ -396,30 +396,30 @@ class Elements extends Array {
    }
   get innerWidth() {
     if(this[0]===window) return this[0].innerWidth
-    else if(this[0]===document) return new Elements("html").width("cp")
+    else if(this[0]===document) return new Elements("html").x("cp")
     else return (
-      this.length===1? this.width("cp"):this.map(element=>new Elements(element).width("cp"))
+      this.length===1? this.x("cp"):this.map(element=>new Elements(element).x("cp"))
     )
   }
   get outerWidth() {
     if(this[0]===window) return this[0].outerWidth
-    else if(this[0]===document) return new Elements("html").width("cpb")
+    else if(this[0]===document) return new Elements("html").x("cpb")
     else return (
-      this.length===1? this.width("cpb"):this.map(element=>new Elements(element).width("cpb"))
+      this.length===1? this.x("cpb"):this.map(element=>new Elements(element).x("cpb"))
     )
    }
   get innerHeight() {
     if(this[0]===window) return this[0].innerHeight
-    else if(this[0]===document) return new Elements("html").height("cp")
+    else if(this[0]===document) return new Elements("html").y("cp")
     else return (
-      this.length===1? this.height("cp"):this.map(element=>new Elements(element).height("cp"))
+      this.length===1? this.y("cp"):this.map(element=>new Elements(element).y("cp"))
     )
   }
   get outerHeight() {
     if(this[0]===window) return this[0].outerHeight
-    else if(this[0]===document) return new Elements("html").height("cpb")
+    else if(this[0]===document) return new Elements("html").y("cpb")
     else return (
-      this.length===1? this.height("cpb"):this.map(element=>new Elements(element).height("cpb"))
+      this.length===1? this.y("cpb"):this.map(element=>new Elements(element).y("cpb"))
     )
   }
   get scrollTop() {
