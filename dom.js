@@ -157,7 +157,7 @@ class Elements extends Array {
   y(cbpm, tblr) {
     const options = typeof cbpm==="undefined"? ["c","p","b"] : cbpm.replace(" ","").toLowerCase().split("")
     if(typeof tblr==="string"||tblr instanceof String){
-      cont fl = tblr.charAt(0).toLowerCase()
+      const fl = tblr.charAt(0).toLowerCase()
       const _position = fl==="t"?"Top": fl==="b"?"Bottom": fl==="r"?"Right" : "Left"
         if(this.length===1) {
           const scrollbarHeight = 
@@ -267,7 +267,7 @@ class Elements extends Array {
   x(cbpm, tblr) {
     const options = typeof cbpm==="undefined"? ["c","p","b"] : cbpm.replace(" ","").toLowerCase().split("")
     if(typeof tblr==="string"||tblr instanceof String){
-      cont fl = tblr.charAt(0).toLowerCase()
+      const fl = tblr.charAt(0).toLowerCase()
       const _position = fl==="t"?"Top": fl==="b"?"Bottom": fl==="r"?"Right" : "Left"
       if(this.length===1){
         const scrollbarHeight = 
