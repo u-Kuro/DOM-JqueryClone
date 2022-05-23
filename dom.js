@@ -17,6 +17,7 @@ const dom = (element_s) => {
 }
 
 const getProp = (element, property) => {
+  console.log(window.getComputedStyle(element))
   return element[property]||window.getComputedStyle(element)[property]
 }
 
@@ -53,7 +54,6 @@ class Elements extends Array {
   }
   //Animate
   css(properties_values,values) {
-    console.log(this[0],properties_values,values)
     if(typeof values==="undefined" 
     && (typeof properties_values==="string" 
     || properties_values instanceof String)) {
@@ -62,30 +62,59 @@ class Elements extends Array {
         : this.map(element=>{
             return getProp(element,properties_values)
           })
+    }
+    // Change String parameters to Object
+    const props = 
+      (typeof properties_values==="string" 
+      || properties_values instanceof String) 
+      && (typeof values==="string" || values instanceof String) ?
+        {[properties_values]:values}
+        : properties_values
+    // Configure Props and Values
+    const _props = 
+      Object.entries(props).reduce((kfs, [p, v]) => {
+        console.log(properties_values, values, p, v)
+        if(p==="transform") {
+          const tnonUnit = ["matrix","matrix3d","scale","scaleX","scaleY","scale3d","scaleZ"]
+          const transformProps = 
+            (v+" ").split(") ").slice(0,-1)
+              .map(p=>{return p.split("(")})
+              .map(([p,v])=>{return [p, v.split(",")]})
+              .map(([p,vs])=>{
+                const newval = vs.map(v=>{ 
+                  if(tnonUnit.some(unit=>p===unit)
+                  ||parseInt(v)===0
+                  ||isNaN(v)) 
+                    return v
+                  else return v+"px"  
+                })
+                var val
+                for(let i=0;i<newval.length;++i)
+                  val = i===0? newval[0] : val+","+newval[i]
+                return [p, val]
+              })
+          var newVal
+          for(let i=0;i<transformProps.length;++i)
+            newVal = i===0? 
+              transformProps[i][0]+"("+transformProps[i][1]+")" 
+              : newVal+" "+transformProps[i][0]+"("+transformProps[i][1]+")"        
+          return {...kfs,[p]:newVal}
         }
-    if((typeof properties_values==="string" 
-    || properties_values instanceof String) 
-    && (typeof values==="string" || values instanceof String)) {
-      if(this.length===0) 
-        setProp(this[0],properties_values,values)
-      else {
-        this.forEach(element => {
-          setProp(element,properties_values,values)
-        })
+        // Check if Inputted Value is a number
+        else if(window.getComputedStyle(this[0])[p].split("px").length-1===1 && typeof v==="number") 
+          return {...kfs,[p]:v+"px"}
+        else
+          return {...kfs,[p]:v}
+      }, {})
+    Object.entries(_props).forEach(([property,value])=>{
+      if(this.length===0) {
+        setProp(this[0],property,value)
       }
-    } 
-    else if(typeof properties_values==="object" 
-    && typeof values==="undefined") {
-      Object.entries(properties_values).forEach(([property,value])=>{
-        if(this.length===0) {
-          setProp(this[0],property,value)
-        }
-        else 
-          this.forEach(element=>{
-            setProp(element,property,value)
-          })
-      })
-    } 
+      else 
+        this.forEach(element=>{
+          setProp(element,property,value)
+        })
+    })
     return this
   }
   animate(keyframe, duration_callback, easing_callback, callback) {
@@ -107,11 +136,41 @@ class Elements extends Array {
     const _keyframes = 
       Object.entries(keyframe).reduce((kfs, [p, v]) => {
         if(nonStylesProp.some(prop=>{p===prop}))
-          return [kfs[0],{...kfs[1],[p]:v}]  
+          return [kfs[0],{...kfs[1],[p]:v}]
+        else if(p==="transform") {
+          const tnonUnit = ["matrix","matrix3d","scale","scaleX","scaleY","scale3d","scaleZ"]
+          const transformProps = 
+            (v+" ").split(") ").slice(0,-1)
+              .map(p=>{return p.split("(")})
+              .map(([p,v])=>{return [p, v.split(",")]})
+              .map(([p,vs])=>{
+                const newval = vs.map(v=>{ 
+                  if(tnonUnit.some(unit=>p===unit)
+                  ||parseInt(v)===0
+                  ||isNaN(v)) 
+                    return v
+                  else return v+"px"  
+                })
+                var val
+                for(let i=0;i<newval.length;++i)
+                  val = i===0? newval[0] : val+","+newval[i]
+                return [p, val]
+              })
+          var newVal
+          for(let i=0;i<transformProps.length;++i)
+            newVal = i===0? 
+              transformProps[i][0]+"("+transformProps[i][1]+")" 
+              : newVal+" "+transformProps[i][0]+"("+transformProps[i][1]+")"        
+          return [{...kfs[0],[p]:newVal},kfs[1]]
+        }
+        // Check if Inputted Value is a number
+        else if(window.getComputedStyle(this[0])[p].split("px").length-1===1 && typeof v==="number") 
+          return [{...kfs[0],[p]:v+"px"},kfs[1]]
         else
           return [{...kfs[0],[p]:v},kfs[1]]
       }, [])
     // Additional Non Computed Style Properties Animation 
+    console.log(this[0],_keyframes) 
     if(typeof _keyframes[1]!=="undefined") { 
       Object.entries(_keyframes[1]).forEach(([p,v])=>{
         const to = parseFloat(v)
