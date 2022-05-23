@@ -261,6 +261,7 @@ class Elements extends Array {
           duration:_duration, fill:"forwards", easing:_easing})
       })
     setTimeout(()=> {
+      this.css(_keyframes[0]) // Add frames props to element after animation
       _callback()
       return this
     },_duration)    
