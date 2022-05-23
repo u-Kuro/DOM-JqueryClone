@@ -1,33 +1,44 @@
-const DOM = (element_s) => {
-  if(typeof element_s==="string" || element_s instanceof  String){
+const dom = (element_s) => {
+  if(typeof element_s==="string" 
+  || element_s instanceof String){
     if(document.querySelectorAll(element_s).length===0)
       return undefined
-    else return new Elements(...document.querySelectorAll(element_s))
-  } else {
-    if(!(element_s instanceof Window)&&!(element_s instanceof Document)&&!(element_s instanceof HTMLElement)) 
+    else 
+      return new Elements(...document.querySelectorAll(element_s))
+  } 
+  else {
+    if(!(element_s instanceof Window)
+    &&!(element_s instanceof Document)
+    &&!(element_s instanceof HTMLElement)) 
       return undefined
-    else return new Elements(element_s)
+    else 
+      return new Elements(element_s)
   } 
 }
 
-const propVal = (element, property) => {  
-  if(typeof element[property]==="undefined"||element[property]===null)
-    if(element.style[property].length===0){
-      const value = window.getComputedStyle(element)[property].toString()
-      const cssUnits=["px","em","rem","ch","%","vh","vw","ex","cm","mm","in","pt","pc","vmin","vmax"]
-      if(cssUnits.some(unit=>value.indexOf(unit)>-1))
-        return parseFloat(window.getComputedStyle(element)[property])
-      else return window.getComputedStyle(element)[property]
-    } else return element.style[property]
-  else return element[property]    
+const getProp = (element, property) => {
+  return element[property]||window.getComputedStyle(element)[property]
+}
+
+const setProp = (element, property, value) => {
+  if(typeof element[property]!=="undefined")
+    return element[property]=value
+  else 
+    return element.style[property]=value
+}
+
+const getSize = (element, property) => {
+  return parseFloat(window.getComputedStyle(element)[property])
 }
 
 class Elements extends Array {   
   //Listener
   ready(callback) {
-    if(this.some(element=>element.readyState!==null && element.readyState!=="loading"))
+    if(this.some(element=>element.readyState!==null 
+    && element.readyState!=="loading"))
       callback()
-    else this.on("DOMContentLoaded",callback)
+    else 
+      this.on("DOMContentLoaded",callback)
     return this
   }
   on(event,callback_element,callback) {
@@ -42,69 +53,104 @@ class Elements extends Array {
   }
   //Animate
   css(properties_values,values) {
-    const _properties = typeof properties_values==="object"? Object.keys(properties_values):properties_values
-    const _values = typeof properties_values==="object"? Object.values(properties_values):typeof values==="string"||values instanceof String? values:""
-      if(_values.length===0) {
-        return this.length===1? propVal(this[0],_properties) : this.map(element=>propVal(element,_properties))
-      } else 
-        this.forEach(element=>{
-          element.style[_properties]===null?
-          element[_properties]=values :
-          element.style[_properties]=_values
-        })      
+    console.log(this[0],properties_values,values)
+    if(typeof values==="undefined" 
+    && (typeof properties_values==="string" 
+    || properties_values instanceof String)) {
+      return this.length===1? 
+        getProp(this[0],properties_values)
+        : this.map(element=>{
+            return getProp(element,properties_values)
+          })
+        }
+    if((typeof properties_values==="string" 
+    || properties_values instanceof String) 
+    && (typeof values==="string" || values instanceof String)) {
+      if(this.length===0) 
+        setProp(this[0],properties_values,values)
+      else {
+        this.forEach(element => {
+          setProp(element,properties_values,values)
+        })
+      }
+    } 
+    else if(typeof properties_values==="object" 
+    && typeof values==="undefined") {
+      Object.entries(properties_values).forEach(([property,value])=>{
+        if(this.length===0) {
+          setProp(this[0],property,value)
+        }
+        else 
+          this.forEach(element=>{
+            setProp(element,property,value)
+          })
+      })
+    } 
     return this
   }
   animate(keyframe, duration_callback, easing_callback, callback) {
-    const _duration = typeof duration_callback==="number"? duration_callback:0
-    const _easing = typeof easing_callback==="string"||easing_callback instanceof String? easing_callback:"cubic-bezier(.5, .05, .1, 1.25)"
-    const _callback = typeof duration_callback==="function"? duration_callback:typeof easing_callback==="function"? easing_callback:typeof callback==="function"? callback:()=>{}
-    const _keyframes = Object.entries(keyframe).reduce((kfs, [p, v]) => {
-                        if(p==="scrollTop") return [kfs[0],{...kfs[1],[p]:parseFloat(v)}]
-                        else if(p==="scrollLeft") return [kfs[0],{...kfs[1],[p]:parseFloat(v)}]   
-                        else return [{...kfs[0],[p]:v},kfs[1]]
-                      }, [])
-    // Additional Scroll Animation 
-    if(typeof _keyframes[1]!=="undefined"&&_keyframes[1]!==null) { 
-      const scrolled = this[0]===document.body||this[0]===window||this[0]===document? DOM("html"):this
-      DOM("body").css("overflow","visible")
-      DOM("html").css("overflow","visible")// Allow scroll
+    const _duration = 
+      typeof duration_callback==="number"?
+        duration_callback : 0
+    const _easing = 
+      typeof easing_callback==="string"||easing_callback instanceof String ? 
+        easing_callback
+        : "cubic-bezier(.5, .05, .1, 1.25)"
+    const _callback = 
+      typeof duration_callback==="function" ? 
+        duration_callback
+        : typeof easing_callback==="function" ?
+          easing_callback
+          : typeof callback==="function" ?
+            callback:()=>{}
+    const nonStylesProp = ["scrollTop","scrollLeft"]
+    const _keyframes = 
+      Object.entries(keyframe).reduce((kfs, [p, v]) => {
+        if(nonStylesProp.some(prop=>{p===prop}))
+          return [kfs[0],{...kfs[1],[p]:v}]  
+        else
+          return [{...kfs[0],[p]:v},kfs[1]]
+      }, [])
+    // Additional Non Computed Style Properties Animation 
+    if(typeof _keyframes[1]!=="undefined") { 
       Object.entries(_keyframes[1]).forEach(([p,v])=>{
         const to = parseFloat(v)
-        if(scrolled.length===1){
-          const from = propVal(scrolled[0],p)
+        if(this.length===1) {
+          const from = this[0].style[p] || this[0][p]
           const dif = _duration===0? to-from:(to-from)/_duration
           const frames=[];
           for(let i=_duration===0?0:1;i<=_duration;++i)
             frames.push([i , _duration===0?to:(dif*i)+from])
           frames.forEach(([time,location])=>{
             setTimeout(()=>{
-              scrolled[0][p]=location
+              this[0][p]=location
             },time)
           })
-        } else 
-        scrolled.forEach(element=> {
-          const from = propVal(element,p)
-          const dif = _duration===0? to-from:(to-from)/_duration
-          const frames=[];
-          for(let i=_duration===0?0:1;i<=_duration;++i)
-            frames.push([i , _duration===0?to:(dif*i)+from])
-          frames.forEach(([time,location])=>{
-            setTimeout(()=>{
-              element[p]=location
-            },time)
+        } else {
+          scrolled.forEach(element=> {
+            const from = element[p] || element.style[p]
+            const dif = _duration===0? to-from:(to-from)/_duration
+            const frames=[];
+            for(let i=_duration===0?0:1;i<=_duration;++i)
+              frames.push([i , _duration===0?to:(dif*i)+from])
+            frames.forEach(([time,location])=>{
+              setTimeout(()=>{
+                element[p]=location
+              },time)
+            })
           })
-        })
+        }
       })
     }
-    // CSS Animation Keyframes
-    this.length===1? 
-    this[0].animate([{},_keyframes[0]], {
+    // CSS Styles Animation Keyframes
+    if(this.length===1)
+      this[0].animate([{},_keyframes[0]], {
         duration:_duration, fill:"forwards", easing:_easing}) 
-    :
-    this.forEach(element=> {
-      element.animate([{},_keyframes[0]], {
-        duration:_duration, fill:"forwards", easing:_easing})
-    })
+    else
+      this.forEach(element=> {
+        element.animate([{},_keyframes[0]], {
+          duration:_duration, fill:"forwards", easing:_easing})
+      })
     setTimeout(()=> {
       _callback()
       return this
@@ -163,46 +209,42 @@ class Elements extends Array {
           const scrollbarHeight = 
             (_position==="Bottom"? 
               (this[0].offsetHeight - this[0].clientHeight): 0 +
-          propVal(this[0],"border"+_position+"Width"))
+          getSize(this[0],"border"+_position+"Width"))
           return (
             (scrollbarHeight) +
             (options.includes("c")? 
-              (propVal(this[0],"height")
-                -propVal(this[0],"paddingTop")
-                -propVal(this[0],"paddingBottom")
-                -propVal(this[0],"borderTopWidth")
-                -propVal(this[0],"borderBottomWidth")
-                -propVal(this[0],"marginTop")
-                -propVal(this[0],"marginBottom"))/2:0) + 
+              (getSize(this[0],"height")
+                -getSize(this[0],"paddingTop")
+                -getSize(this[0],"paddingBottom")
+                -getSize(this[0],"borderTopWidth")
+                -getSize(this[0],"borderBottomWidth"))/2:0) + 
             (options.includes("b")?
-              propVal(this[0],"border"+_position+"Width"):0) +
+              getSize(this[0],"border"+_position+"Width"):0) +
             (options.includes("p")?
-              propVal(this[0],"padding"+_position):0) +
+              getSize(this[0],"padding"+_position):0) +
             (options.includes("m")?
-              propVal(this[0],"margin"+_position):0)
+              getSize(this[0],"margin"+_position):0)
           )
         } else {
           this.map(element=> { 
             const scrollbarHeight = 
             (_position==="Bottom"? 
               (element.offsetHeight - element.clientHeight): 0 +
-              propVal(element,"border"+_position+"Width"))
+              getSize(element,"border"+_position+"Width"))
             return (
               (scrollbarHeight) +
               (options.includes("c")? 
-                (propVal(element,"height")
-                  -propVal(element,"paddingTop")
-                  -propVal(element,"paddingBottom")
-                  -propVal(element,"borderTopWidth")
-                  -propVal(element,"borderBottomWidth")
-                  -propVal(element,"marginTop")
-                  -propVal(element,"marginBottom"))/2:0) + 
+                (getSize(element,"height")
+                  -getSize(element,"paddingTop")
+                  -getSize(element,"paddingBottom")
+                  -getSize(element,"borderTopWidth")
+                  -getSize(element,"borderBottomWidth"))/2:0) + 
               (options.includes("b")?
-                propVal(element,"border"+_position+"Width"):0) +
+                getSize(element,"border"+_position+"Width"):0) +
               (options.includes("p")?
-                propVal(element,"padding"+_position):0) +
+                getSize(element,"padding"+_position):0) +
               (options.includes("m")?
-                propVal(element,"margin"+_position):0)
+                getSize(element,"margin"+_position):0)
             )
           })
         }
@@ -211,54 +253,50 @@ class Elements extends Array {
         const scrollbarHeight = 
           this[0].offsetHeight - 
           (this[0].clientHeight +
-          propVal(this[0],"borderTopWidth") + 
-          propVal(this[0],"borderBottomWidth"))
+          getSize(this[0],"borderTopWidth") + 
+          getSize(this[0],"borderBottomWidth"))
         return (
           (scrollbarHeight) +
           (options.includes("c")? 
-            propVal(this[0],"height")
-              -propVal(this[0],"paddingTop")
-              -propVal(this[0],"paddingBottom")
-              -propVal(this[0],"borderTopWidth")
-              -propVal(this[0],"borderBottomWidth")
-              -propVal(this[0],"marginTop")
-              -propVal(this[0],"marginBottom"):0) + 
+            getSize(this[0],"height")
+              -getSize(this[0],"paddingTop")
+              -getSize(this[0],"paddingBottom")
+              -getSize(this[0],"borderTopWidth")
+              -getSize(this[0],"borderBottomWidth"):0) + 
           (options.includes("b")? (
-            propVal(this[0],"borderTopWidth") +
-            propVal(this[0],"borderBottomWidth")):0) +
+            getSize(this[0],"borderTopWidth") +
+            getSize(this[0],"borderBottomWidth")):0) +
           (options.includes("p")? (
-            propVal(this[0],"paddingTop") +
-            propVal(this[0],"paddingBottom")):0) +
+            getSize(this[0],"paddingTop") +
+            getSize(this[0],"paddingBottom")):0) +
           (options.includes("m")? (
-            propVal(this[0],"marginTop") +
-            propVal(this[0],"marginBottom")):0)
+            getSize(this[0],"marginTop") +
+            getSize(this[0],"marginBottom")):0)
         )
       } else {
         this.map(element=> { 
           const scrollbarHeight = 
             element.offsetHeight - 
             (element.clientHeight +
-            propVal(element,"borderTopWidth") + 
-            propVal(element,"borderBottomWidth"))
+            getSize(element,"borderTopWidth") + 
+            getSize(element,"borderBottomWidth"))
           return (
             (scrollbarHeight) +
             (options.includes("c")? 
-              propVal(element,"height")
-                -propVal(element,"paddingTop")
-                -propVal(element,"paddingBottom")
-                -propVal(element,"borderTopWidth")
-                -propVal(element,"borderBottomWidth")
-                -propVal(element,"marginTop")
-                -propVal(element,"marginBottom"):0) + 
+              getSize(element,"height")
+                -getSize(element,"paddingTop")
+                -getSize(element,"paddingBottom")
+                -getSize(element,"borderTopWidth")
+                -getSize(element,"borderBottomWidth"):0) + 
             (options.includes("b")? (
-              propVal(element,"borderTopWidth") +
-              propVal(element,"borderBottomWidth")):0) +
+              getSize(element,"borderTopWidth") +
+              getSize(element,"borderBottomWidth")):0) +
             (options.includes("p")? (
-              propVal(element,"paddingTop") +
-              propVal(element,"paddingBottom")):0) +
+              getSize(element,"paddingTop") +
+              getSize(element,"paddingBottom")):0) +
             (options.includes("m")? (
-              propVal(element,"marginTop") +
-              propVal(element,"marginBottom")):0)
+              getSize(element,"marginTop") +
+              getSize(element,"marginBottom")):0)
           )
         })
       }
@@ -273,46 +311,42 @@ class Elements extends Array {
         const scrollbarHeight = 
           (_position==="Right"? 
             (this[0].offsetWidth - this[0].clientWidth): 0 +
-            propVal(this[0],"border"+_position+"Width"))
+            getSize(this[0],"border"+_position+"Width"))
         return (
           (scrollbarHeight) +
           (options.includes("c")? 
-            (propVal(this[0],"width")
-              -propVal(this[0],"paddingLeft")
-              -propVal(this[0],"paddingRight")
-              -propVal(this[0],"borderLeftWidth")
-              -propVal(this[0],"borderRightWidth")
-              -propVal(this[0],"marginRight")
-              -propVal(this[0],"marginLeft"))/2:0) +
+            (getSize(this[0],"width")
+              -getSize(this[0],"paddingLeft")
+              -getSize(this[0],"paddingRight")
+              -getSize(this[0],"borderLeftWidth")
+              -getSize(this[0],"borderRightWidth"))/2:0) +
           (options.includes("b")?
-            propVal(this[0],"border"+_position+"Width"):0) +
+            getSize(this[0],"border"+_position+"Width"):0) +
           (options.includes("p")?
-            propVal(this[0],"padding"+_position):0) +
+            getSize(this[0],"padding"+_position):0) +
           (options.includes("m")?
-            propVal(this[0],"margin"+_position):0)
+            getSize(this[0],"margin"+_position):0)
         )
       } else {
         this.map(element=> { 
           const scrollbarHeight = 
           (_position==="Right"? 
             (element.offsetWidth - element.clientWidth): 0 +
-          propVal(element,"border"+_position+"Width"))
+          getSize(element,"border"+_position+"Width"))
           return (
             (scrollbarHeight) +
             (options.includes("c")? 
-              (propVal(element,"width")
-                -propVal(this[0],"paddingLeft")
-                -propVal(this[0],"paddingRight")
-                -propVal(this[0],"borderLeftWidth")
-                -propVal(this[0],"borderRightWidth")
-                -propVal(this[0],"marginRight")
-                -propVal(this[0],"marginLeft"))/2:0) + 
+              (getSize(element,"width")
+                -getSize(this[0],"paddingLeft")
+                -getSize(this[0],"paddingRight")
+                -getSize(this[0],"borderLeftWidth")
+                -getSize(this[0],"borderRightWidth"))/2:0) + 
             (options.includes("b")?
-              propVal(element,"border"+_position+"Width"):0) +
+              getSize(element,"border"+_position+"Width"):0) +
             (options.includes("p")?
-              propVal(element,"padding"+_position):0) +
+              getSize(element,"padding"+_position):0) +
             (options.includes("m")?
-              propVal(element,"margin"+_position):0)
+              getSize(element,"margin"+_position):0)
           )
         })
       }
@@ -321,54 +355,50 @@ class Elements extends Array {
         const scrollbarWidth = 
           this[0].offsetWidth - 
             (this[0].clientWidth +
-            propVal(this[0],"borderLeftWidth") + 
-            propVal(this[0],"borderRightWidth"))
+            getSize(this[0],"borderLeftWidth") + 
+            getSize(this[0],"borderRightWidth"))
         return ( 
           (scrollbarWidth) +
           (options.includes("c")? 
-            propVal(this[0],"width")
-              -propVal(this[0],"paddingLeft")
-              -propVal(this[0],"paddingRight")
-              -propVal(this[0],"borderLeftWidth")
-              -propVal(this[0],"borderRightWidth")
-              -propVal(this[0],"marginRight")
-              -propVal(this[0],"marginLeft"):0) + 
+            getSize(this[0],"width")
+              -getSize(this[0],"paddingLeft")
+              -getSize(this[0],"paddingRight")
+              -getSize(this[0],"borderLeftWidth")
+              -getSize(this[0],"borderRightWidth"):0) + 
           (options.includes("b")? (
-            propVal(this[0],"borderLeftWidth") +
-            propVal(this[0],"borderRightWidth")):0) +
+            getSize(this[0],"borderLeftWidth") +
+            getSize(this[0],"borderRightWidth")):0) +
           (options.includes("p")? (
-            propVal(this[0],"paddingLeft") +
-            propVal(this[0],"paddingRight")):0) +
+            getSize(this[0],"paddingLeft") +
+            getSize(this[0],"paddingRight")):0) +
           (options.includes("m")? (
-            propVal(this[0],"marginLeft") +
-            propVal(this[0],"marginRight")):0)
+            getSize(this[0],"marginLeft") +
+            getSize(this[0],"marginRight")):0)
         )
       } else {
         this.map(element=> { 
           const scrollbarWidth = 
             element.offsetWidth - 
             (element.clientWidth +
-            propVal(element,"borderLeftWidth") + 
-            propVal(element,"borderRightWidth"))
+            getSize(element,"borderLeftWidth") + 
+            getSize(element,"borderRightWidth"))
           return ( 
             (scrollbarWidth) +
             (options.includes("c")? 
-              propVal(element,"width")
-                -propVal(element,"paddingLeft")
-                -propVal(element,"paddingRight")
-                -propVal(element,"borderLeftWidth")
-                -propVal(element,"borderRightWidth")
-                -propVal(element,"marginRight")
-                -propVal(element,"marginLeft"):0) + 
+              getSize(element,"width")
+                -getSize(element,"paddingLeft")
+                -getSize(element,"paddingRight")
+                -getSize(element,"borderLeftWidth")
+                -getSize(element,"borderRightWidth"):0) + 
             (options.includes("b")? (
-              propVal(element,"borderLeftWidth") +
-              propVal(element,"borderRightWidth")):0) +
+              getSize(element,"borderLeftWidth") +
+              getSize(element,"borderRightWidth")):0) +
             (options.includes("p")? (
-              propVal(element,"paddingLeft") +
-              propVal(element,"paddingRight")):0) +
+              getSize(element,"paddingLeft") +
+              getSize(element,"paddingRight")):0) +
             (options.includes("m")? (
-              propVal(element,"marginLeft") +
-              propVal(element,"marginRight")):0)
+              getSize(element,"marginLeft") +
+              getSize(element,"marginRight")):0)
           )
         })
       }
@@ -434,7 +464,7 @@ class Elements extends Array {
   }
 }
 
-module.exports = DOM
+module.exports = dom
 
 // Extra
     //Append
