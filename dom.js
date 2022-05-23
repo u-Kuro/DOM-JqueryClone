@@ -17,7 +17,6 @@ const dom = (element_s) => {
 }
 
 const getProp = (element, property) => {
-  console.log(window.getComputedStyle(element))
   return element[property]||window.getComputedStyle(element)[property]
 }
 
@@ -71,11 +70,35 @@ class Elements extends Array {
         {[properties_values]:values}
         : properties_values
     // Configure Props and Values
+    const tnonUnit = ["matrix","matrix3d","scale","scaleX","scaleY","scale3d","scaleZ"]
+    const transformShorcut = 
+    [ "translate", "translateY", "translateX", "translate3d", "translateZ",
+      "scale", "scaleX", "scaleY", "scale3d", "scaleZ",
+      "rotate", "rotateX", "rotateY", "rotate3d", "rotateZ",
+      "skew", "skewX", "skewY", "perspective", "matrix", "matrix3d" ]
     const _props = 
       Object.entries(props).reduce((kfs, [p, v]) => {
-        console.log(properties_values, values, p, v)
-        if(p==="transform") {
-          const tnonUnit = ["matrix","matrix3d","scale","scaleX","scaleY","scale3d","scaleZ"]
+        // For transform props shortcut also accepts Numeric
+        if(transformShorcut.some(prop=>prop===p)) {
+          if(v instanceof Array) {
+            var newval
+            for(let i=0;i<v.length;++i){
+              if(tnonUnit.some(unit=>p===unit)
+              ||parseInt(v)===0
+              ||isNaN(v))
+                newval = i===0? v[i] : newval+","+v[i]
+              else
+                newval = i===0? v[i]+"px" : newval+","+v[i]+"px"  
+            }
+            return {...kfs,transform: p+"("+newval+")"}
+          } else if(tnonUnit.some(unit=>p===unit)
+            ||parseInt(v)===0
+            ||isNaN(v)){
+            return {...kfs[0],transform: p+"("+v+")"}
+          } else  
+            return {...kfs[0],transform: p+"("+parseFloat(v)+"px)"}
+        // For original transform accepting Numeric
+        } else if(p==="transform") {
           const transformProps = 
             (v+" ").split(") ").slice(0,-1)
               .map(p=>{return p.split("(")})
@@ -133,12 +156,38 @@ class Elements extends Array {
           : typeof callback==="function" ?
             callback:()=>{}
     const nonStylesProp = ["scrollTop","scrollLeft"]
+    const tnonUnit = ["matrix","matrix3d","scale","scaleX","scaleY","scale3d","scaleZ"]
+    const transformShorcut = 
+      [ "translate", "translateY", "translateX", "translate3d", "translateZ",
+        "scale", "scaleX", "scaleY", "scale3d", "scaleZ",
+        "rotate", "rotateX", "rotateY", "rotate3d", "rotateZ",
+        "skew", "skewX", "skewY", "perspective", "matrix", "matrix3d"]
     const _keyframes = 
       Object.entries(keyframe).reduce((kfs, [p, v]) => {
         if(nonStylesProp.some(prop=>{p===prop}))
           return [kfs[0],{...kfs[1],[p]:v}]
+        // Added transform shortcut Props
+        else if(transformShorcut.some(prop=>prop===p)) {
+          if(v instanceof Array) {
+            var newval
+            for(let i=0;i<v.length;++i){
+              if(tnonUnit.some(unit=>p===unit)
+              ||parseInt(v)===0
+              ||isNaN(v))
+                newval = i===0? v[i] : newval+","+v[i]
+              else
+                newval = i===0? v[i]+"px" : newval+","+v[i]+"px"  
+            }
+            return [{...kfs[0],transform: p+"("+newval+")"},kfs[1]]
+          } else if(tnonUnit.some(unit=>p===unit)
+            ||parseInt(v)===0
+            ||isNaN(v)){
+            return [{...kfs[0],transform: p+"("+v+")"},kfs[1]]
+          } else  
+            return [{...kfs[0],transform: p+"("+parseFloat(v)+"px)"},kfs[1]]
+        }
+        // Transform accepts numeric
         else if(p==="transform") {
-          const tnonUnit = ["matrix","matrix3d","scale","scaleX","scaleY","scale3d","scaleZ"]
           const transformProps = 
             (v+" ").split(") ").slice(0,-1)
               .map(p=>{return p.split("(")})
@@ -170,7 +219,6 @@ class Elements extends Array {
           return [{...kfs[0],[p]:v},kfs[1]]
       }, [])
     // Additional Non Computed Style Properties Animation 
-    console.log(this[0],_keyframes) 
     if(typeof _keyframes[1]!=="undefined") { 
       Object.entries(_keyframes[1]).forEach(([p,v])=>{
         const to = parseFloat(v)
