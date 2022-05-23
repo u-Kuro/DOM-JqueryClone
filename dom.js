@@ -164,7 +164,8 @@ class Elements extends Array {
         "skew", "skewX", "skewY", "perspective", "matrix", "matrix3d"]
     const _keyframes = 
       Object.entries(keyframe).reduce((kfs, [p, v]) => {
-        if(nonStylesProp.some(prop=>{p===prop}))
+        console.log(this[0],p,v)
+        if(nonStylesProp.some(prop=>{return p===prop}))
           return [kfs[0],{...kfs[1],[p]:v}]
         // Added transform shortcut Props
         else if(transformShorcut.some(prop=>prop===p)) {
@@ -173,10 +174,14 @@ class Elements extends Array {
             for(let i=0;i<v.length;++i){
               if(tnonUnit.some(unit=>p===unit)
               ||parseInt(v)===0
-              ||isNaN(v))
+              ||isNaN(v)){
+                console.log("top:"+v[i])
                 newval = i===0? v[i] : newval+","+v[i]
-              else
+              }
+              else {
+                console.log(v[i])
                 newval = i===0? v[i]+"px" : newval+","+v[i]+"px"  
+              }
             }
             return [{...kfs[0],transform: p+"("+newval+")"},kfs[1]]
           } else if(tnonUnit.some(unit=>p===unit)
