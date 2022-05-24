@@ -1,6 +1,9 @@
 const dom = (element_s) => {
-  if(element_s instanceof Elements)
-    return element_s
+  if(element_s instanceof Element || element_s instanceof HTMLDocument)
+    if(typeof element_s[0]==="undefined")
+      return new Elements([element_s])
+    else
+      return new Elements(element_s)
   else if(typeof element_s==="string" 
   || element_s instanceof String){
     if(document.querySelectorAll(element_s).length===0)
