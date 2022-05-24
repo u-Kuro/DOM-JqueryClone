@@ -131,16 +131,15 @@ class Elements extends Array {
         else
           return {...kfs,[p]:v}
       }, {})
-    Object.entries(_props).forEach(([property,value])=>{
-      if(this.length===0) {
-        setProp(this[0],property,value)
-      }
-      else 
-        this.forEach(element=>{
-          setProp(element,property,value)
-        })
+    Object.entries(_props).forEach(([property,value])=>{ 
+      this.forEach(element=>{
+        setProp(element,property,value)
+      })
     })
-    this.animate(_props)// Fix props to elements that was Changed by Animate keyframes
+    this.forEach(element=> { Fix props to elements that was Changed by Animate keyframes
+      element.animate([{},_props], {
+        duration:_duration, fill:"forwards"})
+    })
     return this
   }
   animate(keyframe, duration_callback, easing_callback, callback) {
@@ -239,7 +238,7 @@ class Elements extends Array {
             },time)
           })
         } else {
-          scrolled.forEach(element=> {
+          this.forEach(element=> {
             const from = element[p] || element.style[p]
             const dif = _duration===0? to-from:(to-from)/_duration
             const frames=[];
