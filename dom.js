@@ -1,9 +1,8 @@
 const dom = (element_s) => {
-  if(element_s instanceof Element || element_s instanceof HTMLDocument)
-    if(typeof element_s[0]==="undefined")
-      return new Elements([element_s])
-    else
-      return new Elements(element_s)
+  if(element_s instanceof Window || element_s instanceof Element || element_s instanceof HTMLDocument)
+    return new Elements(element)
+  else if(element_s instanceof HTMLCollection || element_s instanceof NodeList)
+      return new Elements(...element_s)
   else if(typeof element_s==="string" 
   || element_s instanceof String){
     if(document.querySelectorAll(element_s).length===0)
@@ -11,14 +10,8 @@ const dom = (element_s) => {
     else 
       return new Elements(...document.querySelectorAll(element_s))
   } 
-  else {
-    if(!(element_s instanceof Window)
-    &&!(element_s instanceof Document)
-    &&!(element_s instanceof HTMLElement)) 
-      return undefined
-    else 
-      return new Elements(element_s)
-  } 
+  else
+    return undefined
 }
 
 const getProp = (element, property) => {
