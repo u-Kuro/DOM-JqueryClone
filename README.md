@@ -9,15 +9,15 @@
   2) Call dom(selector/dom_element) similar to a query selector
 
 ## Added/Simplified Functions
-  ### dom()
-  the same usecase as jquery $ but can accept dom elements as well
-  ### x(cpbm, tblr) and y(cpbm, tblr) 
-  as axis with string parameters and returns a number.
-      1) cbpm (Size) \
+  ###   dom()
+  ####    the same usecase as jquery $ but can accept dom elements as well
+  ###   x(cpbm, tblr) and y(cpbm, tblr) 
+  ####    as axis with string parameters and returns a number.
+      1) cbpm (Size) \n
           includes Content Size | Content | Padding | Border | Margin |
-      2) tblr (Position) \
+      2) tblr (Position) \n
           starting at middle of the element (0,0) calculates | Top | Bottom | Left | Right |
-  ### css() and animate()
+  ###    css() and animate()
     - works similar to jquery, but added transform functions such as translateX, scale, etc. that accepts a string unit, number, and array of string or number
     - returns a string of style property
 
