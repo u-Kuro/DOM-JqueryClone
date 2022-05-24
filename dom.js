@@ -161,7 +161,7 @@ class Elements extends Array {
       [ "translate", "translateY", "translateX", "translate3d", "translateZ",
         "scale", "scaleX", "scaleY", "scale3d", "scaleZ",
         "rotate", "rotateX", "rotateY", "rotate3d", "rotateZ",
-        "skew", "skewX", "skewY", "perspective", "matrix", "matrix3d"]
+        "skew", "skewX", "skewY", "perspective", "matrix", "matrix3d" ]
     const _keyframes = 
       Object.entries(keyframe).reduce((kfs, [p, v]) => {
         if(nonStylesProp.some(prop=>{return p===prop}))
