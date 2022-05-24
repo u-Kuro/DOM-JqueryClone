@@ -9,11 +9,11 @@
 
   1) Start by importing/requiring @kushii/dom as dom
   
-  2) Call dom( selector/dom_element ) similar to a query selector
+  2) Call dom( SelectorString / Htmlelement/ Element ) similar to a query selector
 
 ## Added/Simplified Functions
 
-### 1) dom( selector/dom_element )
+### 1) dom( selector/ dom_element )
 
     The same usecase as jquery $ but can accept dom elements as well
     
