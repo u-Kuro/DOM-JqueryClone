@@ -17,14 +17,14 @@
 
     The same usecase as jquery $ but can accept dom elements as well
     
-### 2) x( cpbm, tblr ) | y( cpbm, tblr )
+### 2) x( cpbm, tblr ) and y( cpbm, tblr )
 
     > As axis with string parameters and returns a number
     
     Parameters    
      1) cbpm ( Size )
      
-         > Includes Content Size | Content | Padding | Border | Margin | 
+         > Includes Sizes | Content | Padding | Border | Margin | 
          
      2) tblr ( Position ) 
      
@@ -32,9 +32,9 @@
          
 ### 3) css( ) and animate( ) 
 
-    > Works similar to jquery, but added transform functions such as translateX, scale, etc. that accepts
+    > Works similar to jquery, but added transform functions such as translateX, 
     
-      a string unit, number, and array of string or number
+      scale, etc. that accepts a string unit, number, and array of string or number
       
       
     > Returns a string of style property  
