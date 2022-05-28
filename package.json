@@ -1,6 +1,6 @@
 {
   "name": "@kushii/dom",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "a simplified DOM manipulation",
   "main": "dom.js",
   "scripts": {
