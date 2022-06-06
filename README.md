@@ -9,15 +9,11 @@
 
   1) Start by importing/requiring @kushii/dom as dom
   
-  2) Call dom( SelectorString/DOM_NodeList_Collection_Element ) similar to a query selector
+  2) Call dom( Selector / Element ) similar to a query selector
 
 ## Added/Simplified Functions
-
-### 1) dom( SelectorString/DOM_NodeList_Collection_Element )
-
-    The same usecase as jquery $ but can accept dom elements as well
     
-### 2) x( cpbm, tblr ) and y( cpbm, tblr )
+### 1) x( cpbm, tblr ) and y( cpbm, tblr )
 
     > As axis with string parameters and returns a number
     
@@ -30,7 +26,7 @@
      
          > Starting at middle of the element ( 0, 0 ) calculates | Top | Bottom | Left | Right | 
          
-### 3) css( ) and animate( ) 
+### 2) css( ) and animate( ) 
 
     > Works similar to jquery, but added transform functions such as translateX, 
     
